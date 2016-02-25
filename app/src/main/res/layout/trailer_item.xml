@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/play_button"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="50dp"
+        android:src="@drawable/play_button"/>
+
+    <TextView
+        android:id="@+id/trailer_name"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:textColor="@color/textColor"
+        android:gravity="center_vertical"
+        android:layout_height="match_parent"/>
+</LinearLayout>
