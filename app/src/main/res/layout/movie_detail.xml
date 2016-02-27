@@ -96,6 +96,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Review"
+                android:textColor="@color/textColor"
+                android:textSize="20sp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"/>
+
+            <TextView
+                android:id="@+id/review"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I actually enjoyed the movie so much that i'll recommend it to all my friends, at first i didn't really want to watch it because i'm not into super hero movies at all, but i did anyway, i mean people were talking so much about it i had to see it myself and what an awesome choice i made. The good thing about this movie is that Deadpool is a hero but in a very comedic way, you don't usually expect comedy from a superhero film but this one was full of comedy and the way they treated the plot was amazing, it was there, humor was there in every scene, even when there was fighting or romance or any other scene, the writers managed to add comedy everywhere in a very good way that'll surprisingly make you want to watch it again, and again. Thank you for taking the time read my review and if you're asking yourself if you should watch this movie, it's a definite Yes."
+                android:textColor="@color/textColor"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="16dp"
+                android:layout_below="@+id/detail_description"
+                android:background="@color/textColor"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Trailers"
                 android:textColor="@color/textColor"
                 android:textSize="20sp"
@@ -110,6 +135,15 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"/>
 
+
+            <TextView
+                android:id="@+id/no_trailer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Trailers Available"
+                android:textColor="@color/textColor"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"/>
 
         </LinearLayout>
     </ScrollView>

@@ -12,9 +12,10 @@ public class Movie {
     String plotSynopsis;
     String id;
     String trailerPath;
+    String review;
     public static String sortBy = "Sort by rate";
 
-    public Movie(String title,String releaseDate,String moviePoster,String voteAverage,String plotSynopsis,String id,String trailerPath)
+    public Movie(String title,String releaseDate,String moviePoster,String voteAverage,String plotSynopsis,String id,String trailerPath, String review)
     {
         this.title = title;
         this.releaseDate = releaseDate;
@@ -23,5 +24,6 @@ public class Movie {
         this.plotSynopsis = plotSynopsis;
         this.trailerPath = trailerPath;
         this.id = id;
+        this.review = review;
     }
 }

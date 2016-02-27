@@ -37,26 +37,32 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by Ray on 2/1/2016.
  */
 public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+
     private View mRootView;
-    private ImageView mPoster;
-    private TextView mReleaseDate;
-    private TextView mRateAverage;
-    private ImageView mHeart;
-    private TextView mDescription;
-    private TextView mTitle;
-    private RecyclerView mTrailers;
+    @Bind(R.id.detail_poster) ImageView mPoster;
+    @Bind(R.id.release_date) TextView mReleaseDate;
+    @Bind(R.id.detail_rate) TextView mRateAverage;
+    @Bind(R.id.heart) ImageView mHeart;
+    @Bind(R.id.detail_description) TextView mDescription;
+    @Bind(R.id.detail_title) TextView mTitle;
+    @Bind(R.id.trailer_list) RecyclerView mTrailers;
+    @Bind(R.id.review) TextView mReviews;
+    @Bind(R.id.no_trailer) TextView mNoTrailer;
+
     private static final int DETAIL_LOADER = 0;
     public static final String MOVIE_DETAIL_URI = "URI";
     private Uri mUri;
     private final ContentValues mValues = new ContentValues();
     private ShareActionProvider mShareActionProvider;
     private String movieTrailerURL;
-
 
     private static final String[] MOVIE_COLUMNS =
             {
@@ -67,6 +73,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     MovieContract.ByRatingEntry.COLUMN_DESCRIPTION,
                     MovieContract.ByRatingEntry.COLUMN_POSTER,
                     MovieContract.ByRatingEntry.COLUMN_ID,
+                    MovieContract.ByRatingEntry.COLUMN_REVIEW,
                     MovieContract.ByRatingEntry.COLUMN_TRAILER,
             };
 
@@ -77,7 +84,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private static final int DESCRIPTION = 4;
     private static final int POSTER = 5;
     private static final int UUID = 6;
-    private static final int TRAILER = 7;
+    private static final int REVIEW = 7;
+    private static final int TRAILER = 8;
 
     public static MovieDetailFragment newInstance() {
          Bundle args = new Bundle();
@@ -100,12 +108,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
 
         mRootView = inflater.inflate(R.layout.movie_detail,container,false);
+        ButterKnife.bind(this,mRootView);
         return mRootView;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.share_movie, menu);
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
@@ -143,21 +151,19 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         mValues.put(MovieContract.FavoriteEntry.COLUMN_DESCRIPTION, data.getString(DESCRIPTION));
         mValues.put(MovieContract.FavoriteEntry.COLUMN_TITLE, data.getString(TITLE));
         mValues.put(MovieContract.FavoriteEntry.COLUMN_TRAILER, data.getString(TRAILER));
+        mValues.put(MovieContract.FavoriteEntry.COLUMN_REVIEW, data.getString(REVIEW));
 
         final String BASE_POSTER_URL = "http://image.tmdb.org/t/p/w185/";
         String posterURL = BASE_POSTER_URL + data.getString(POSTER);
-        mPoster = (ImageView)mRootView.findViewById(R.id.detail_poster);
-        Picasso.with(getActivity().getApplicationContext()).load(posterURL).into(mPoster);
 
-        mReleaseDate = (TextView)mRootView.findViewById(R.id.release_date);
+        Picasso.with(getActivity().getApplicationContext()).load(posterURL).placeholder(R.drawable.white_placeholder).error(R.drawable.error_placeholder).into(mPoster);
+
         mReleaseDate.setText(data.getString(DATE));
 
-        mRateAverage = (TextView)mRootView.findViewById(R.id.detail_rate);
         mRateAverage.setText(data.getString(RATE)+"/10");
 
 
         Cursor cursor = getActivity().getContentResolver().query(MovieContract.FavoriteEntry.CONTENT_URI,null,"movie_id=?",new String[] {data.getString(UUID)},null,null);
-        mHeart = (ImageView)mRootView.findViewById(R.id.heart);
         if (cursor.moveToFirst())
         {mHeart.setImageResource(R.drawable.red_heart);}
         mHeart.setOnClickListener(new View.OnClickListener() {
@@ -178,14 +184,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             }
         });
 
-
-        mDescription = (TextView)mRootView.findViewById(R.id.detail_description);
         mDescription.setText(data.getString(DESCRIPTION));
 
-        mTitle = (TextView)mRootView.findViewById(R.id.detail_title);
         mTitle.setText(data.getString(TITLE));
 
-        mTrailers = (RecyclerView)mRootView.findViewById(R.id.trailer_list);
         mTrailers.setLayoutManager(new LinearLayoutManager(getActivity()));
         mTrailers.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity()).drawable(R.drawable.line_divider).build());
         String[] trailers  = trailerUris(data.getString(TRAILER));
@@ -200,6 +202,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         TrailersAdapter trailersAdapter = new TrailersAdapter(getActivity(),trailers);
         mTrailers.setAdapter(trailersAdapter);
+
+        if(trailersAdapter.getItemCount() == 0)
+            mTrailers.setVisibility(View.GONE);
+        else
+            mNoTrailer.setVisibility(View.GONE);
+
+        mReviews.setText(parseReview(data.getString(REVIEW)));
     }
 
     @Override
@@ -227,6 +236,28 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             return null;
         }
 
+    }
+
+    public String parseReview(String rawReview)
+    {
+        try {
+            JSONObject trailerJson = new JSONObject(rawReview);
+            JSONArray trailerArray = trailerJson.getJSONArray("results");
+
+            String allReview = "";
+
+            for (int j = 0; j < trailerArray.length(); j++) {
+                JSONObject reviewItem = trailerArray.getJSONObject(j);
+                allReview = allReview + reviewItem.getString("content") + "\n" + "\n";
+            }
+            if (allReview.equals(""))
+                allReview = "No Review Available";
+            return allReview;
+        } catch (JSONException e) {
+            Log.e("getReviews", e.getMessage(), e);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private Intent createShareTrailerIntent()

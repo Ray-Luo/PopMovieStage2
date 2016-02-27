@@ -43,6 +43,8 @@ public class MovieContract {
 
         public static final String COLUMN_ID = "movie_id";
 
+        public static final String COLUMN_REVIEW = "review";
+
         public static Uri buildRatingUri(long id)
         {return ContentUris.withAppendedId(CONTENT_URI,id);}
 
@@ -78,6 +80,8 @@ public class MovieContract {
 
         public static final String COLUMN_ID = "movie_id";
 
+        public static final String COLUMN_REVIEW = "review";
+
         public static Uri buildPopularityUri(long id)
         {return ContentUris.withAppendedId(CONTENT_URI,id);}
 
@@ -111,6 +115,8 @@ public class MovieContract {
         public static final String COLUMN_RATE = "rate";
 
         public static final String COLUMN_ID = "movie_id";
+
+        public static final String COLUMN_REVIEW = "review";
 
         public static Uri buildFavoriteUri(long id)
         {return ContentUris.withAppendedId(CONTENT_URI,id);}

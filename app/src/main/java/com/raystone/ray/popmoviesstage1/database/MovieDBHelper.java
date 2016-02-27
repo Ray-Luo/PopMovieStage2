@@ -29,6 +29,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ByRatingEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
                 ByRatingEntry.COLUMN_POSTER + " TEXT NOT NULL, " +
                 ByRatingEntry.COLUMN_ID+ " TEXT NOT NULL, " +
+                ByRatingEntry.COLUMN_REVIEW + " TEXT, " +
                 ByRatingEntry.COLUMN_TRAILER +" TEXT NOT NULL " +
                 " );";
         sqLiteDatabase.execSQL(SQL_CREATE_RATING_TABLE);
@@ -41,6 +42,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 FavoriteEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
                 FavoriteEntry.COLUMN_POSTER + " TEXT NOT NULL, " +
                 FavoriteEntry.COLUMN_ID+ " TEXT NOT NULL, " +
+                FavoriteEntry.COLUMN_REVIEW + " TEXT, " +
                 FavoriteEntry.COLUMN_TRAILER +" TEXT NOT NULL " +
                 " );";
         sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_TABLE);
@@ -53,6 +55,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ByPopularityEntry.COLUMN_DESCRIPTION + " TEXT NOT NULL, " +
                 ByPopularityEntry.COLUMN_POSTER + " TEXT NOT NULL, " +
                 ByPopularityEntry.COLUMN_ID+ " TEXT NOT NULL, " +
+                ByPopularityEntry.COLUMN_REVIEW + " TEXT, " +
                 ByPopularityEntry.COLUMN_TRAILER +" TEXT NOT NULL " +
                 " );";
         sqLiteDatabase.execSQL(SQL_CREATE_POPULARITY_TABLE);

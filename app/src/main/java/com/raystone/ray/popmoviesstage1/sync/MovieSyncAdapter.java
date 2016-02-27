@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.http.HttpStatus;
 
 /**
  * Created by Ray on 2/20/2016.
@@ -45,6 +46,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
     String appId = BuildConfig.MOVIE_API_KEY;
     final String APIId = "api_key";
     List<String> trailers = new ArrayList<>();
+    List<String> reviews = new ArrayList<>();
 
     public MovieSyncAdapter(Context context, boolean autoInitialize)
     {super(context,autoInitialize);}
@@ -58,7 +60,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
 
         String movieJsonStr = null;
 
-        //String appId = BuildConfig.MOVIE_API_KEY;
 
         try {
             final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
@@ -99,25 +100,63 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
                 id = movieItem.getString("id");
 
                 final String TRAILER_BASE_URL = "http://api.themoviedb.org/3/movie/";
+                final String REVIEW_BASE_URL = "http://api.themoviedb.org/3/movie/";
                 Uri trailerUrl;
+                Uri reviewUrl;
 
                 trailerUrl = Uri.parse(TRAILER_BASE_URL).buildUpon().appendPath(id).appendPath("videos").appendQueryParameter(APIId, appId).build();
+                reviewUrl = Uri.parse(REVIEW_BASE_URL).buildUpon().appendPath(id).appendPath("reviews").appendQueryParameter(APIId, appId).build();
 
+                //  get trailer url
                 url = new URL(trailerUrl.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
-                inputStream = urlConnection.getInputStream();
+                int status = urlConnection.getResponseCode();
+                if(status < HttpStatus.SC_BAD_REQUEST)
+                    inputStream = urlConnection.getInputStream();
+                else
+                    inputStream = urlConnection.getErrorStream();
+
+
                 buffer = new StringBuffer();
                 if (inputStream == null) return;
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
                 }
-                if (buffer.length() == 0) return;
+                if (buffer.length() == 0)
+                    return;
+
                 trailers.add(buffer.toString());
                 Log.v(LOG_TAG, "Trailer: " + trailers.get(i).toString());
+
+                // get review
+                url = new URL(reviewUrl.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                status = urlConnection.getResponseCode();
+                if(status < HttpStatus.SC_BAD_REQUEST)
+                    inputStream = urlConnection.getInputStream();
+                else
+                    inputStream = urlConnection.getErrorStream();
+
+
+                buffer = new StringBuffer();
+                if (inputStream == null) return;
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                if (buffer.length() == 0)
+                    return;
+
+                reviews.add(buffer.toString());
+                Log.v(LOG_TAG, "Trailer: " + reviews.get(i).toString());
+
             }
 
 
@@ -173,6 +212,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
             String plotSynopsis;
             String id;
 
+
             //  get info from JSON
             JSONObject movieItem = movieArray.getJSONObject(i);
             title = movieItem.getString(TITLE);
@@ -194,10 +234,11 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
             movieValue.put(MovieContract.ByRatingEntry.COLUMN_DATE, releaseDate);
             movieValue.put(MovieContract.ByRatingEntry.COLUMN_TRAILER,trailers.get(i));
             movieValue.put(MovieContract.ByRatingEntry.COLUMN_ID,id);
+            movieValue.put(MovieContract.ByRatingEntry.COLUMN_REVIEW,reviews.get(i));
 
             tempMovieValue.add(movieValue);
 
-            movie.add(new Movie(title, releaseDate, moviePoster, voteAverage, plotSynopsis,id,trailers.get(i)));
+            movie.add(new Movie(title, releaseDate, moviePoster, voteAverage, plotSynopsis,id,trailers.get(i),reviews.get(i)));
         }
         Log.v(LOG_TAG, "Movie Sample" + movie.get(0));
 
@@ -218,6 +259,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter{
         }
 
         trailers.clear();
+        reviews.clear();
         Log.v(LOG_TAG,"FetchMovieTask complete." + insertedByRating + "inserted");
         return movie;
     }

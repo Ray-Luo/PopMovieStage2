@@ -34,6 +34,6 @@ public class MovieAdapter extends CursorAdapter {
         String posterPath = cursor.getString(posterId);
         final String BASE_POSTER_URL = "http://image.tmdb.org/t/p/w185/";
         posterPath = BASE_POSTER_URL + posterPath;
-        Picasso.with(context).load(posterPath).resize(270,405).into(imageView);
+        Picasso.with(context).load(posterPath).placeholder(R.drawable.white_placeholder).error(R.drawable.error_placeholder).resize(270,405).into(imageView);
     }
 }
